@@ -42,7 +42,7 @@ public final class ZookeeperBenchmark {
         double read_percent = Double.parseDouble(p_args[1]);
 
         ZooKeeper zookeeper = new ZooKeeper(servers, 1000, null);
-        zookeeper.create("/bench", null, null, CreateMode.PERSISTENT);
+        zookeeper.create("/bench", new byte[] {1}, null, CreateMode.PERSISTENT);
 
         long[] times = new long[it_count];
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+    <Appenders>
+        <!--<File name="FileAppender" fileName="log/dxraft.log">-->
+            <!--<PatternLayout pattern="%highlight{[%d{HH:mm:ss.SSS}][%t][%-5level][%logger{36}] %msg%n}{FATAL=red, ERROR=red, WARN=yellow, INFO=blue, DEBUG=green, TRACE=white}"/>-->
+        <!--</File>-->
+
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%highlight{[%d{HH:mm:ss.SSS}][%t][%-5level][%logger{36}] %msg%n}{FATAL=red, ERROR=red, WARN=yellow, INFO=blue, DEBUG=green, TRACE=white}"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <!--<AppenderRef ref="FileAppender"/>-->
+            <AppenderRef ref="Console" level="info"/>
+        </Root>
+    </Loggers>
+</Configuration>
