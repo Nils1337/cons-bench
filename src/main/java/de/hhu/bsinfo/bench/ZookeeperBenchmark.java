@@ -8,7 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 
 import java.io.BufferedWriter;
@@ -42,7 +44,7 @@ public final class ZookeeperBenchmark {
         double read_percent = Double.parseDouble(p_args[1]);
 
         ZooKeeper zookeeper = new ZooKeeper(servers, 1000, null);
-        zookeeper.create("/bench", new byte[] {1}, null, CreateMode.PERSISTENT);
+        zookeeper.create("/bench", new byte[] {1}, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
         long[] times = new long[it_count];
 
