@@ -1,69 +1,61 @@
 package de.hhu.bsinfo.bench;
 
-import de.hhu.bsinfo.dxraft.client.ClientConfig;
-import de.hhu.bsinfo.dxraft.client.RaftClient;
-import de.hhu.bsinfo.dxraft.data.IntData;
-import de.hhu.bsinfo.dxraft.data.StringData;
-import de.hhu.bsinfo.dxraft.util.ConfigUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.zookeeper.data.Stat;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.stream.Stream;
 
-public final class DXRaftBenchmark {
-    private static final Logger log = LogManager.getLogger();
+public final class Benchmark {
+    private static final Logger log = LogManager.getLogger(Benchmark.class);
 
-    private static final String CLIENT_CONFIG_PATH = "config/client-config.json";
-    private static final String RESULT_FILE_PATH = "log/bench-result.csv";
-
-    private DXRaftBenchmark() {}
+    private Benchmark() {}
 
     public static void main(String[] p_args) {
-        String configPath = System.getProperty("dxraft.config");
-        if (configPath == null) {
-            configPath = CLIENT_CONFIG_PATH;
-        }
-
-        String resultPath = System.getProperty("dxraft.bench.result");
+        String resultPath = System.getProperty("bench.result");
         if (resultPath == null) {
-            resultPath = RESULT_FILE_PATH;
-        }
-
-        if (p_args.length < 2) {
-            log.error("Too few parameters. Parameters needed: [iteration count] [read percentage]");
+            log.error("Result path must be provided with -Dbench.result");
             return;
         }
 
-        int it_count = Integer.parseInt(p_args[0]);
-        double read_percent = Double.parseDouble(p_args[1]);
-
-        ClientConfig config = ConfigUtils.getClientConfig(configPath);
-
-        if (config == null) {
+        if (p_args.length < 3) {
+            log.error("Too few parameters. Parameters needed: [benchmark type] [iteration count] [read percentage]");
             return;
         }
 
-        RaftClient client = new RaftClient(config);
-        client.init();
-        client.discoverServers();
+        ConsensusHandler handler;
+        if ("z".equals(p_args[0]) || "zookeeper".equals(p_args[0])) {
+            handler = new ZookeeperHandler();
+        } else if ("r".equals(p_args[0]) || "dxraft".equals(p_args[0])) {
+            handler = new DXRaftHandler();
+        } else {
+            log.error("Unknown benchmark type");
+            return;
+        }
 
-        long[] times = new long[it_count];
+        if (!handler.init()) {
+            return;
+        }
 
-        int readMod = (int) (it_count / (read_percent * it_count));
-        int progressMod = it_count / 20;
+        int itCount = Integer.parseInt(p_args[1]);
+        double readPercent = Double.parseDouble(p_args[2]);
+        long[] times = new long[itCount];
+
+        int readMod = (int) (itCount / (readPercent * itCount));
+        int progressMod = itCount / 20;
         long sum = 0;
         double avg = 0.0;
+        Stat stat = null;
 
         log.info("Starting benchmark...");
-        for (int i = 0; i < it_count; i++) {
+        for (int i = 0; i < itCount; i++) {
             long start = System.nanoTime();
             if (i % readMod == 0) {
-                client.read("bench", false);
+                handler.readRequest();
             } else {
-                client.write("bench", new IntData(1), true);
+                handler.writeRequest();
             }
             long end = System.nanoTime();
             long time = end - start;
@@ -77,7 +69,7 @@ public final class DXRaftBenchmark {
             }
         }
 
-        avg = sum / (double) it_count;
+        avg = sum / (double) itCount;
 
         log.info("Benchmark finished. Total time was {} ms. Average time was {} ms.", String.format("%1$,.2f",
                 sum / 1000000000.0), String.format("%1$,.2f", avg / 1000000));
@@ -97,4 +89,3 @@ public final class DXRaftBenchmark {
         log.info("Finished");
     }
 }
-

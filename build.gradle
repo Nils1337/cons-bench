@@ -25,7 +25,7 @@ jar {
     manifest {
         attributes('Implementation-Title': project.name,
                 'Implementation-Version': project.version,
-                'Main-Class': 'de.hhu.bsinfo.bench.ZookeeperBenchmark')
+                'Main-Class': 'de.hhu.bsinfo.bench.Benchmark')
     }
 
     from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }

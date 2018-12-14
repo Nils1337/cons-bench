@@ -1,4 +1,4 @@
-rootProject.name = 'consensus-benchmark'
+rootProject.name = 'cons-bench'
 
 if (new File('../dxraft').exists()) {
     includeBuild('../dxraft')
