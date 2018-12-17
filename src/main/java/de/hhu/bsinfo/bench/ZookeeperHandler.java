@@ -25,9 +25,9 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
 
         try {
             m_zookeeper = new ZooKeeper(servers, 1000, this);
-            m_stat = m_zookeeper.exists("/bench", null);
+            m_stat = m_zookeeper.exists(m_path, null);
             if (m_stat == null) {
-                m_zookeeper.create("/bench", new byte[]{1}, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                m_zookeeper.create(m_path, new byte[]{1}, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
         } catch (IOException | KeeperException | InterruptedException e) {
             log.error(e);
