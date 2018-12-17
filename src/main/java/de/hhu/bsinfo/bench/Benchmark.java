@@ -20,8 +20,8 @@ public final class Benchmark {
             return;
         }
 
-        if (p_args.length < 3) {
-            log.error("Too few parameters. Parameters needed: [benchmark type] [iteration count] [read percentage]");
+        if (p_args.length < 4) {
+            log.error("Too few parameters. Parameters needed: [benchmark type] [path] [iteration count] [read percentage]");
             return;
         }
 
@@ -35,16 +35,30 @@ public final class Benchmark {
             return;
         }
 
-        if (!handler.init()) {
+        String path = p_args[1];
+
+        if (!handler.init(path)) {
             return;
         }
 
-        int itCount = Integer.parseInt(p_args[1]);
-        double readPercent = Double.parseDouble(p_args[2]);
+        int itCount = Integer.parseInt(p_args[2]);
+        double readPercent = Double.parseDouble(p_args[3]);
         long[] times = new long[itCount];
 
-        int readMod = (int) (itCount / (readPercent * itCount));
-        int progressMod = itCount / 20;
+        int readMod;
+        if (readPercent != 0) {
+            readMod = (int) (itCount / (readPercent * itCount));
+        } else {
+            readMod = itCount;
+        }
+
+        int progressMod;
+        if (itCount >= 20) {
+            progressMod = itCount / 20;
+        } else {
+            progressMod = 20;
+        }
+
         long sum = 0;
         double avg = 0.0;
         Stat stat = null;

@@ -1,7 +1,7 @@
 package de.hhu.bsinfo.bench;
 
 public interface ConsensusHandler {
-    boolean init();
+    boolean init(String path);
     void readRequest();
     void writeRequest();
 }

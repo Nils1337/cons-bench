@@ -11,9 +11,11 @@ public class DXRaftHandler implements ConsensusHandler {
     private static final Logger log = LogManager.getLogger(DXRaftHandler.class);
 
     private RaftClient m_raft;
+    private String m_path;
 
     @Override
-    public boolean init() {
+    public boolean init(String p_path) {
+        m_path = p_path;
         String configPath = System.getProperty("dxraft.config");
         if (configPath == null) {
             log.error("Config path must be provided with -Ddxraft.config");
@@ -39,11 +41,11 @@ public class DXRaftHandler implements ConsensusHandler {
 
     @Override
     public void readRequest() {
-        m_raft.read("bench", false);
+        m_raft.read(m_path, false);
     }
 
     @Override
     public void writeRequest() {
-        m_raft.write("bench", new IntData(1), true);
+        m_raft.write(m_path, new IntData(1), true);
     }
 }
