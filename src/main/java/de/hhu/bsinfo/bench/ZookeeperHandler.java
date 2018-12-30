@@ -11,12 +11,9 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
     private static final Logger log = LogManager.getLogger(ZookeeperHandler.class);
 
     private ZooKeeper m_zookeeper;
-    private Stat m_stat;
-    private String m_path;
 
     @Override
-    public boolean init(String p_path) {
-        m_path = p_path;
+    public boolean init(int p_nodeCount) {
         String servers = System.getProperty("zookeeper.servers");
         if (servers == null) {
             log.error("Server list must be provided with -Dzookeeper.servers");
@@ -25,10 +22,13 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
 
         try {
             m_zookeeper = new ZooKeeper(servers, 1000, this);
-            m_stat = m_zookeeper.exists(m_path, null);
-            if (m_stat == null) {
-                m_zookeeper.create(m_path, new byte[]{1}, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
+            for (int i = 0; i < p_nodeCount; i++) {
+                if (m_zookeeper.exists("bench-" + i, false) == null) {
+                    m_zookeeper.create("bench-" + i, new byte[]{1}, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                }
             }
+
         } catch (IOException | KeeperException | InterruptedException e) {
             log.error(e);
             return false;
@@ -37,18 +37,18 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
     }
 
     @Override
-    public void readRequest() {
+    public void readRequest(String p_path) {
         try {
-            m_zookeeper.getData(m_path, null, null);
+            m_zookeeper.getData(p_path, null, null);
         } catch (KeeperException | InterruptedException e) {
             log.error(e);
         }
     }
 
     @Override
-    public void writeRequest() {
+    public void writeRequest(String p_path) {
         try {
-            m_stat = m_zookeeper.setData(m_path, new byte[] {1}, m_stat == null ? 0 : m_stat.getVersion());
+            m_stat = m_zookeeper.setData(p_path, new byte[] {1}, -1);
         } catch (KeeperException | InterruptedException e) {
             log.error(e);
         }

@@ -7,15 +7,15 @@ import de.hhu.bsinfo.dxraft.util.ConfigUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class DXRaftHandler implements ConsensusHandler {
     private static final Logger log = LogManager.getLogger(DXRaftHandler.class);
 
     private RaftClient m_raft;
-    private String m_path;
 
     @Override
-    public boolean init(String p_path) {
-        m_path = p_path;
+    public boolean init(int p_nodeCount) {
         String configPath = System.getProperty("dxraft.config");
         if (configPath == null) {
             log.error("Config path must be provided with -Ddxraft.config");
@@ -35,17 +35,16 @@ public class DXRaftHandler implements ConsensusHandler {
             return false;
         }
 
-        m_raft.discoverServers();
         return true;
     }
 
     @Override
-    public void readRequest() {
-        m_raft.read(m_path, false);
+    public void readRequest(String p_path) {
+        m_raft.read(p_path, false);
     }
 
     @Override
-    public void writeRequest() {
-        m_raft.write(m_path, new IntData(1), true);
+    public void writeRequest(String p_path) {
+        m_raft.write(p_path, new IntData(1), true);
     }
 }

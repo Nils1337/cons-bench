@@ -4,4 +4,9 @@ if (new File('../dxraft').exists()) {
     includeBuild('../dxraft')
 }
 
+if (new File('../dxutils').exists()) {
+    includeBuild('../dxutils')
+}
+
+
 

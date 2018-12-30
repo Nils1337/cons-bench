@@ -17,6 +17,7 @@ repositories {
 dependencies {
     implementation 'de.hhu.bsinfo:dxraft:0.1.0' + (Boolean.valueOf(System.getProperty('release')) ? '' : '-SNAPSHOT')
     implementation 'org.apache.zookeeper:zookeeper:3.4.13'
+    implementation 'de.hhu.bsinfo:dxutils:0.6.0'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
