@@ -48,7 +48,7 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
     @Override
     public void writeRequest(String p_path) {
         try {
-            m_stat = m_zookeeper.setData(p_path, new byte[] {1}, -1);
+            m_zookeeper.setData(p_path, new byte[] {1}, -1);
         } catch (KeeperException | InterruptedException e) {
             log.error(e);
         }

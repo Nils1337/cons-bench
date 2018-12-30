@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.bench;
 
+import de.hhu.bsinfo.dxutils.Stopwatch;
 import de.hhu.bsinfo.dxutils.stats.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,11 +31,11 @@ public final class Benchmark {
 
         StatisticsManager manager = StatisticsManager.get();
         ThroughputPool throughput = new ThroughputPool(Benchmark.class, "Throughput", Value.Base.B_10);
-        TimePool time = new TimePool(Benchmark.class, "Time");
+//        TimePool time = new TimePool(Benchmark.class, "Time");
         TimePercentilePool timePercentile = new TimePercentilePool(Benchmark.class, "Time Percentile");
 
         manager.registerOperation(Benchmark.class, throughput);
-        manager.registerOperation(Benchmark.class, time);
+//        manager.registerOperation(Benchmark.class, time);
         manager.registerOperation(Benchmark.class, timePercentile);
 
         ConsensusHandler handler;
@@ -79,6 +80,9 @@ public final class Benchmark {
         Thread[] threads = new Thread[threadCount];
         for (int j = 0; j < threadCount; j++) {
             threads[j] = new Thread(() -> {
+
+                Stopwatch stopwatch = new Stopwatch();
+
                 for (int i = 0; i < itCount; i++) {
 //                    long start = System.nanoTime();
 
@@ -87,7 +91,8 @@ public final class Benchmark {
 
                     if (i > itCount / 100) {
                         throughput.start();
-                        time.start();
+                        stopwatch.start();
+//                        time.start();
                     }
 
                     if (i % readMod == 0) {
@@ -98,8 +103,9 @@ public final class Benchmark {
 
                     if (i > itCount / 100) {
                         throughput.stop(1);
-                        long delta = time.stop();
-                        timePercentile.record(delta);
+                        stopwatch.stop();
+                        long time = stopwatch.getTime();
+                        timePercentile.record(time);
                     }
 
 //                    long end = System.nanoTime();
