@@ -86,7 +86,7 @@ public final class Benchmark {
                     if (i > itCount / 100) {
                         throughput.stop(1);
                         long t = time.stop();
-                        timePercentile.record(time);
+                        timePercentile.record(t);
                     }
                 }
             });
