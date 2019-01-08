@@ -55,6 +55,15 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
     }
 
     @Override
+    public void shutdown() {
+        try {
+            m_zookeeper.close();
+        } catch (InterruptedException e) {
+            log.error(e);
+        }
+    }
+
+    @Override
     public void process(WatchedEvent p_event) {
 
     }

@@ -47,4 +47,9 @@ public class DXRaftHandler implements ConsensusHandler {
     public void writeRequest(String p_path) {
         m_raft.write(p_path, new IntData(1), true);
     }
+
+    @Override
+    public void shutdown() {
+        m_raft.shutdown();
+    }
 }

@@ -6,9 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.data.Stat;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class Benchmark {
@@ -31,11 +29,11 @@ public final class Benchmark {
 
         StatisticsManager manager = StatisticsManager.get();
         ThroughputPool throughput = new ThroughputPool(Benchmark.class, "Throughput", Value.Base.B_10);
-//        TimePool time = new TimePool(Benchmark.class, "Time");
+        TimePool time = new TimePool(Benchmark.class, "Time");
         TimePercentilePool timePercentile = new TimePercentilePool(Benchmark.class, "Time Percentile");
 
         manager.registerOperation(Benchmark.class, throughput);
-//        manager.registerOperation(Benchmark.class, time);
+        manager.registerOperation(Benchmark.class, time);
         manager.registerOperation(Benchmark.class, timePercentile);
 
         ConsensusHandler handler;
@@ -56,9 +54,8 @@ public final class Benchmark {
             return;
         }
 
-        int itCount = Integer.parseInt(p_args[2]);
-        double readPercent = Double.parseDouble(p_args[3]);
-//        long[] times = new long[itCount];
+        int itCount = Integer.parseInt(p_args[3]);
+        double readPercent = Double.parseDouble(p_args[4]);
 
         int readMod;
         if (readPercent != 0) {
@@ -66,33 +63,18 @@ public final class Benchmark {
         } else {
             readMod = itCount;
         }
-//
-//        int progressMod;
-//        if (itCount >= 20) {
-//            progressMod = itCount / 20;
-//        } else {
-//            progressMod = 20;
-//        }
-//
-//        long sum = 0;
-//        double avg = 0.0;
 
         Thread[] threads = new Thread[threadCount];
         for (int j = 0; j < threadCount; j++) {
             threads[j] = new Thread(() -> {
-
-                Stopwatch stopwatch = new Stopwatch();
-
                 for (int i = 0; i < itCount; i++) {
-//                    long start = System.nanoTime();
 
                     int random = ThreadLocalRandom.current().nextInt(nodeCount);
                     String path = "bench-" + random;
 
                     if (i > itCount / 100) {
                         throughput.start();
-                        stopwatch.start();
-//                        time.start();
+                        time.start();
                     }
 
                     if (i % readMod == 0) {
@@ -103,26 +85,14 @@ public final class Benchmark {
 
                     if (i > itCount / 100) {
                         throughput.stop(1);
-                        stopwatch.stop();
-                        long time = stopwatch.getTime();
+                        long t = time.stop();
                         timePercentile.record(time);
                     }
-
-//                    long end = System.nanoTime();
-//                    long time = end - start;
-//                    times[i] = time;
-//                    sum += time;
-//
-//                    if (i != 0 && i % progressMod == 0) {
-//                        avg = sum / (double) i;
-//                        log.info( "{}% finished. Total time {} s. Current average {} ms.", i / progressMod * 5,
-//                                String.format("%1$,.2f", sum / 1000000000.0), String.format("%1$,.2f", avg / 1000000));
-//                    }
                 }
             });
         }
 
-        manager.start();
+        manager.setPrintInterval(5000);
 
         for (int j = 0; j < threadCount; j++) {
             threads[j].start();
@@ -136,24 +106,16 @@ public final class Benchmark {
             }
         }
 
-//        avg = sum / (double) itCount;
-//
-//        log.info("Benchmark finished. Total time was {} s. Average time was {} ms.", String.format("%1$,.2f",
-//                sum / 1000000000.0), String.format("%1$,.2f", avg / 1000000));
-//
-//        log.info("Writing results to {}", resultPath);
-//
-//        try (BufferedWriter writer = new BufferedWriter(new FileWriter(resultPath))) {
-//            for (long time : times) {
-//                writer.write(String.valueOf(time));
-//                writer.newLine();
-//            }
-//        } catch (IOException e) {
-//            log.error("Writing to file failed", e);
-//            return;
-//        }
+        log.info("Writing results to {}", resultPath);
+        try {
 
+            PrintStream stream = new PrintStream(new File(resultPath));
+            manager.printStatisticTables(stream);
+        } catch (FileNotFoundException e) {
+            log.error(e);
+        }
         manager.stopPeriodicPrinting();
+        handler.shutdown();
         log.info("Finished");
     }
 }
