@@ -13,7 +13,7 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
     private ZooKeeper m_zookeeper;
 
     @Override
-    public boolean init(int p_nodeCount) {
+    public boolean init(int p_writeDist) {
         String servers = System.getProperty("zookeeper.servers");
         if (servers == null) {
             log.error("Server list must be provided with -Dzookeeper.servers");
@@ -23,7 +23,7 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
         try {
             m_zookeeper = new ZooKeeper(servers, 1000, this);
 
-            for (int i = 0; i < p_nodeCount; i++) {
+            for (int i = 0; i < p_writeDist; i++) {
                 if (m_zookeeper.exists("bench-" + i, false) == null) {
                     m_zookeeper.create("bench-" + i, new byte[]{1}, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 }

@@ -15,7 +15,7 @@ public class DXRaftHandler implements ConsensusHandler {
     private RaftClient m_raft;
 
     @Override
-    public boolean init(int p_nodeCount) {
+    public boolean init(int p_writeDist) {
         String configPath = System.getProperty("dxraft.config");
         if (configPath == null) {
             log.error("Config path must be provided with -Ddxraft.config");

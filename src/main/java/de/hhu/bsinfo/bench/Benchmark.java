@@ -23,7 +23,7 @@ public final class Benchmark {
 
         if (p_args.length < 5) {
             log.error("Too few parameters. Parameters needed: [benchmark type] [thread count] " +
-                    "[node count] [iteration count] [read percentage]");
+                    "[write distribution] [iteration count] [read percentage]");
             return;
         }
 
@@ -48,9 +48,9 @@ public final class Benchmark {
 
         int threadCount = Integer.parseInt(p_args[1]);
 
-        int nodeCount = Integer.parseInt(p_args[2]);
+        int writeDist = Integer.parseInt(p_args[2]);
 
-        if (!handler.init(nodeCount)) {
+        if (!handler.init(writeDist)) {
             return;
         }
 
@@ -69,7 +69,7 @@ public final class Benchmark {
             threads[j] = new Thread(() -> {
                 for (int i = 0; i < itCount; i++) {
 
-                    int random = ThreadLocalRandom.current().nextInt(nodeCount);
+                    int random = ThreadLocalRandom.current().nextInt(writeDist);
                     String path = "bench-" + random;
 
                     if (i > itCount / 100) {
