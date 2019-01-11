@@ -70,7 +70,7 @@ public final class Benchmark {
                 for (int i = 0; i < itCount; i++) {
 
                     int random = ThreadLocalRandom.current().nextInt(writeDist);
-                    String path = "bench-" + random;
+                    String path = "/bench-" + random;
 
                     if (i > itCount / 100) {
                         throughput.start();
