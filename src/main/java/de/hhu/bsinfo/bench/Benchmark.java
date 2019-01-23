@@ -115,6 +115,14 @@ public final class Benchmark {
             log.error(e);
         }
         manager.stopPeriodicPrinting();
+        manager.interrupt();
+
+        try {
+            manager.join();
+        } catch (InterruptedException e) {
+            log.error(e);
+        }
+
         handler.shutdown();
         log.info("Finished");
     }
