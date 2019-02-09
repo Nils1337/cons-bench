@@ -35,6 +35,7 @@ public final class Benchmark {
         manager.registerOperation(Benchmark.class, throughput);
         manager.registerOperation(Benchmark.class, time);
         manager.registerOperation(Benchmark.class, timePercentile);
+        manager.setExtended(true);
 
         ConsensusHandler handler;
         if ("z".equals(p_args[0]) || "zookeeper".equals(p_args[0])) {
