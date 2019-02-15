@@ -28,7 +28,7 @@ public final class Benchmark {
         }
 
         StatisticsManager manager = StatisticsManager.get();
-        ThroughputPool throughput = new ThroughputPool(Benchmark.class, "Throughput", Value.Base.B_10);
+        ThroughputPool throughput = new ThroughputPool(Benchmark.class, "Throughput");
         TimePool time = new TimePool(Benchmark.class, "Time");
         TimePercentilePool timePercentile = new TimePercentilePool(Benchmark.class, "Time Percentile");
 
