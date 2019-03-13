@@ -42,6 +42,8 @@ public final class Benchmark {
             handler = new ZookeeperHandler();
         } else if ("r".equals(p_args[0]) || "dxraft".equals(p_args[0])) {
             handler = new DXRaftHandler();
+        } else if ("c".equals(p_args[0]) || "consul".equals(p_args[0])) {
+            handler = new ConsulHandler();
         } else {
             log.error("Unknown benchmark type");
             return;
@@ -68,7 +70,7 @@ public final class Benchmark {
         Thread[] threads = new Thread[threadCount];
         for (int j = 0; j < threadCount; j++) {
             threads[j] = new Thread(() -> {
-                for (int i = 0; i < itCount; i++) {
+                for (int i = 1; i <= itCount; i++) {
 
                     int random = ThreadLocalRandom.current().nextInt(writeDist);
                     String path = "/bench-" + random;
