@@ -70,6 +70,8 @@ public final class Benchmark {
             readMod = itCount;
         }
 
+        long start = System.nanoTime();
+
         Thread[] threads = new Thread[threadCount];
         for (int j = 0; j < threadCount; j++) {
             threads[j] = new Thread(() -> {
@@ -92,8 +94,9 @@ public final class Benchmark {
                     if (i > itCount / 100) {
                         throughput.stop(1);
                         long t = time.stop();
+                        long timestamp = System.nanoTime();
                         timePercentile.record(t);
-                        history.record(t);
+                        history.record(timestamp - start, t);
                     }
                 }
             });
