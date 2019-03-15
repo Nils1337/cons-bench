@@ -2,6 +2,8 @@ package de.hhu.bsinfo.bench;
 
 import de.hhu.bsinfo.dxraft.client.ClientConfig;
 import de.hhu.bsinfo.dxraft.client.RaftClient;
+import de.hhu.bsinfo.dxraft.client.result.BooleanResult;
+import de.hhu.bsinfo.dxraft.client.result.EntryResult;
 import de.hhu.bsinfo.dxraft.data.IntData;
 import de.hhu.bsinfo.dxraft.util.ConfigUtils;
 import org.apache.logging.log4j.LogManager;
@@ -40,12 +42,18 @@ public class DXRaftHandler implements ConsensusHandler {
 
     @Override
     public void readRequest(String p_path) {
-        m_raft.read(p_path, false);
+        EntryResult result = m_raft.read(p_path, false);
+        if (result.getErrorCode() != 0) {
+            log.error("DXRaft returned error {} when reading data", result.getErrorCode());
+        }
     }
 
     @Override
     public void writeRequest(String p_path) {
-        m_raft.write(p_path, new IntData(1), true);
+        BooleanResult result = m_raft.write(p_path, new IntData(1), true);
+        if (result.getErrorCode() != 0) {
+            log.error("DXRaft returned error {} when writing data", result.getErrorCode());
+        }
     }
 
     @Override
