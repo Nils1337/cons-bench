@@ -21,6 +21,8 @@ public final class Benchmark {
             return;
         }
 
+        String historyPath = System.getProperty("history");
+
         if (p_args.length < 5) {
             log.error("Too few parameters. Parameters needed: [benchmark type] [thread count] " +
                     "[write distribution] [iteration count] [read percentage]");
@@ -31,6 +33,7 @@ public final class Benchmark {
         ThroughputPool throughput = new ThroughputPool(Benchmark.class, "Throughput");
         TimePool time = new TimePool(Benchmark.class, "Time");
         TimePercentilePool timePercentile = new TimePercentilePool(Benchmark.class, "Time Percentile");
+        ValueHistory history = new ValueHistory(Benchmark.class, "History");
 
         manager.registerOperation(Benchmark.class, throughput);
         manager.registerOperation(Benchmark.class, time);
@@ -90,6 +93,7 @@ public final class Benchmark {
                         throughput.stop(1);
                         long t = time.stop();
                         timePercentile.record(t);
+                        history.record(t);
                     }
                 }
             });
@@ -109,14 +113,6 @@ public final class Benchmark {
             }
         }
 
-        log.info("Writing results to {}", resultPath);
-        try {
-
-            PrintStream stream = new PrintStream(new File(resultPath));
-            manager.printStatisticTables(stream);
-        } catch (FileNotFoundException e) {
-            log.error(e);
-        }
         manager.stopPeriodicPrinting();
         manager.interrupt();
 
@@ -125,6 +121,27 @@ public final class Benchmark {
         } catch (InterruptedException e) {
             log.error(e);
         }
+
+        log.info("Writing results to {}", resultPath);
+        try {
+            PrintStream stream = new PrintStream(new File(resultPath));
+            manager.printStatisticTables(stream);
+        } catch (FileNotFoundException e) {
+            log.error(e);
+        }
+
+        if (historyPath != null) {
+            log.info("Writing history to {}", historyPath);
+            try {
+                PrintStream stream = new PrintStream(new File(historyPath));
+                String csv = history.generateCSVHeader(';') + '\n';
+                csv += history.toCSV(';') + '\n';
+                stream.print(csv);
+            } catch (FileNotFoundException e) {
+                log.error(e);
+            }
+        }
+
 
         handler.shutdown();
         log.info("Finished");

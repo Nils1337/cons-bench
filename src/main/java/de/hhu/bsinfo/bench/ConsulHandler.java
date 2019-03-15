@@ -20,7 +20,7 @@ public class ConsulHandler implements ConsensusHandler {
     public boolean init(int p_writeDist) {
         String servers = System.getProperty("consul.servers");
         if (servers == null) {
-            LOG.error("Server list must be provided with -Dzookeeper.servers");
+            LOG.error("Server list must be provided with -Dconsul.servers");
             return false;
         }
         List<HostAndPort> serverList = Arrays.stream(servers.split(","))
