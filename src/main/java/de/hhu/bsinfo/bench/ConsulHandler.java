@@ -2,6 +2,7 @@ package de.hhu.bsinfo.bench;
 
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
+import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.KeyValueClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,12 +37,26 @@ public class ConsulHandler implements ConsensusHandler {
 
     @Override
     public void readRequest(String p_path) {
-        m_kvClient.getValue(p_path);
+        while (true) {
+            try {
+                m_kvClient.getValue(p_path);
+                break;
+            } catch (ConsulException e) {
+                LOG.warn("Exception:", e);
+            }
+        }
     }
 
     @Override
     public void writeRequest(String p_path) {
-        m_kvClient.putValue(p_path, "bench");
+        while (true) {
+            try {
+                m_kvClient.putValue(p_path, "bench");
+                break;
+            } catch (ConsulException e) {
+                LOG.warn("Exception:", e);
+            }
+        }
     }
 
     @Override

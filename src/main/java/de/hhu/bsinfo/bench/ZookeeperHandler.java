@@ -38,19 +38,31 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
 
     @Override
     public void readRequest(String p_path) {
-        try {
-            m_zookeeper.getData(p_path, null, null);
-        } catch (KeeperException | InterruptedException e) {
-            log.error(e);
+        while (true) {
+            try {
+                m_zookeeper.getData(p_path, null, null);
+                break;
+            } catch (KeeperException.ConnectionLossException e) {
+                log.warn(e);
+            } catch (KeeperException | InterruptedException e) {
+                log.error(e);
+                break;
+            }
         }
     }
 
     @Override
     public void writeRequest(String p_path) {
-        try {
-            m_zookeeper.setData(p_path, new byte[] {1}, -1);
-        } catch (KeeperException | InterruptedException e) {
-            log.error(e);
+        while (true) {
+            try {
+                m_zookeeper.setData(p_path, new byte[] {1}, -1);
+                break;
+            } catch (KeeperException.ConnectionLossException e) {
+                //try again
+            } catch (KeeperException | InterruptedException e) {
+                log.error(e);
+                break;
+            }
         }
     }
 
