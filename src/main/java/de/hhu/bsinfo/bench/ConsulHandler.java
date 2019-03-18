@@ -4,6 +4,7 @@ import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.KeyValueClient;
+import de.hhu.bsinfo.dxutils.stats.StatisticsManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,7 +19,7 @@ public class ConsulHandler implements ConsensusHandler {
     private Consul m_consul;
 
     @Override
-    public boolean init(int p_writeDist) {
+    public boolean init(int p_writeDist, StatisticsManager p_manager) {
         String servers = System.getProperty("consul.servers");
         if (servers == null) {
             LOG.error("Server list must be provided with -Dconsul.servers");

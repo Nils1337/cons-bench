@@ -1,9 +1,9 @@
 package de.hhu.bsinfo.bench;
 
+import de.hhu.bsinfo.dxutils.stats.StatisticsManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.zookeeper.*;
-import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
 
@@ -13,7 +13,7 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
     private ZooKeeper m_zookeeper;
 
     @Override
-    public boolean init(int p_writeDist) {
+    public boolean init(int p_writeDist, StatisticsManager p_manager) {
         String servers = System.getProperty("zookeeper.servers");
         if (servers == null) {
             log.error("Server list must be provided with -Dzookeeper.servers");

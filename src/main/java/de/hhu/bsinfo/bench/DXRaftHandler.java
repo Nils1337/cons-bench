@@ -6,18 +6,36 @@ import de.hhu.bsinfo.dxraft.client.result.BooleanResult;
 import de.hhu.bsinfo.dxraft.client.result.EntryResult;
 import de.hhu.bsinfo.dxraft.data.IntData;
 import de.hhu.bsinfo.dxraft.util.ConfigUtils;
+import de.hhu.bsinfo.dxutils.stats.StatisticsManager;
+import de.hhu.bsinfo.dxutils.stats.TimePercentilePool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 public class DXRaftHandler implements ConsensusHandler {
     private static final Logger log = LogManager.getLogger(DXRaftHandler.class);
 
     private RaftClient m_raft;
+    private boolean m_debugRequests;
+    private TimePercentilePool m_acquireLockTime;
+    private TimePercentilePool m_appendTime;
+    private TimePercentilePool m_consensusTime;
+    private TimePercentilePool m_firstFollowerSendTime;
+    private TimePercentilePool m_majorityFollowerSendTime;
+
+
+    public DXRaftHandler(boolean p_debugRequests) {
+        m_debugRequests = p_debugRequests;
+        if (m_debugRequests) {
+            m_acquireLockTime = new TimePercentilePool(DXRaftHandler.class, "Acquire Lock Time");
+            m_appendTime = new TimePercentilePool(DXRaftHandler.class, "Log Append Time");
+            m_consensusTime = new TimePercentilePool(DXRaftHandler.class, "Consensus Time");
+            m_firstFollowerSendTime = new TimePercentilePool(DXRaftHandler.class, "Time until sent to first follower");
+            m_majorityFollowerSendTime = new TimePercentilePool(DXRaftHandler.class, "Time until sent to majority of followers");
+        }
+    }
 
     @Override
-    public boolean init(int p_writeDist) {
+    public boolean init(int p_writeDist, StatisticsManager p_manager) {
         String configPath = System.getProperty("dxraft.config");
         if (configPath == null) {
             log.error("Config path must be provided with -Ddxraft.config");
@@ -37,6 +55,14 @@ public class DXRaftHandler implements ConsensusHandler {
             return false;
         }
 
+        if (m_debugRequests) {
+            p_manager.registerOperation(DXRaftHandler.class, m_acquireLockTime);
+            p_manager.registerOperation(DXRaftHandler.class, m_appendTime);
+            p_manager.registerOperation(DXRaftHandler.class, m_consensusTime);
+            p_manager.registerOperation(DXRaftHandler.class, m_firstFollowerSendTime);
+            p_manager.registerOperation(DXRaftHandler.class, m_majorityFollowerSendTime);
+        }
+
         return true;
     }
 
@@ -50,7 +76,17 @@ public class DXRaftHandler implements ConsensusHandler {
 
     @Override
     public void writeRequest(String p_path) {
-        BooleanResult result = m_raft.write(p_path, new IntData(1), true);
+        BooleanResult result;
+        if (m_debugRequests) {
+            result = m_raft.write(p_path, new IntData(1), true, true);
+            m_acquireLockTime.record(result.getAcquireLockTime());
+            m_appendTime.record(result.getAppendTime());
+            m_consensusTime.record(result.getConsensusTime());
+            m_firstFollowerSendTime.record(result.getFirstFollowerSendTime());
+            m_majorityFollowerSendTime.record(result.getMajorityFollowerSendTime());
+        } else {
+            result = m_raft.write(p_path, new IntData(1), true);
+        }
         if (result.getErrorCode() != 0) {
             log.error("DXRaft returned error {} when writing data", result.getErrorCode());
         }

@@ -1,10 +1,9 @@
 package de.hhu.bsinfo.bench;
 
-import de.hhu.bsinfo.dxutils.Stopwatch;
+import de.hhu.bsinfo.dxraft.client.result.BooleanResult;
 import de.hhu.bsinfo.dxutils.stats.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.zookeeper.data.Stat;
 
 import java.io.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -29,6 +28,8 @@ public final class Benchmark {
             return;
         }
 
+        boolean debugRequests = Boolean.valueOf(System.getProperty("debug", "false"));
+
         StatisticsManager manager = StatisticsManager.get();
         ThroughputPool throughput = new ThroughputPool(Benchmark.class, "Throughput");
         TimePool time = new TimePool(Benchmark.class, "Time");
@@ -44,7 +45,7 @@ public final class Benchmark {
         if ("z".equals(p_args[0]) || "zookeeper".equals(p_args[0])) {
             handler = new ZookeeperHandler();
         } else if ("r".equals(p_args[0]) || "dxraft".equals(p_args[0])) {
-            handler = new DXRaftHandler();
+            handler = new DXRaftHandler(debugRequests);
         } else if ("c".equals(p_args[0]) || "consul".equals(p_args[0])) {
             handler = new ConsulHandler();
         } else {
@@ -56,7 +57,7 @@ public final class Benchmark {
 
         int writeDist = Integer.parseInt(p_args[2]);
 
-        if (!handler.init(writeDist)) {
+        if (!handler.init(writeDist, manager)) {
             return;
         }
 
