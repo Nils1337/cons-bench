@@ -28,7 +28,11 @@ public final class Benchmark {
             return;
         }
 
-        boolean debugRequests = Boolean.valueOf(System.getProperty("debug-requests", "false"));
+        boolean debugRequests = false;
+        String debug = System.getProperty("debug-requests");
+        if (debug != null) {
+            debugRequests = true;
+        }
 
         StatisticsManager manager = StatisticsManager.get();
         ThroughputPool throughput = new ThroughputPool(Benchmark.class, "Throughput");
