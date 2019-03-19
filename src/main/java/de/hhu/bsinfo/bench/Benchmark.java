@@ -132,6 +132,7 @@ public final class Benchmark {
         }
 
         if (debugRequests && handler instanceof DXRaftHandler) {
+            Time totalTime = new Time(DXRaftHandler.class, "Total Time of longest request");
             Time acquireLockTime = new Time(DXRaftHandler.class, "Maximum Acquire Lock Time");
             Time appendTime = new Time(DXRaftHandler.class, "Maximum Log Append Time");
             Time consensusTime = new Time(DXRaftHandler.class, "Maximum Consensus Time");
@@ -139,12 +140,14 @@ public final class Benchmark {
             Time majorityFollowerSendTime = new Time(DXRaftHandler.class, "Maximum Time until sent to majority of followers");
 
             BooleanResult longestRequestResponse = ((DXRaftHandler) handler).getLongestRequestResponse();
+            totalTime.add(((DXRaftHandler) handler).getLongestTime());
             acquireLockTime.add(longestRequestResponse.getAcquireLockTime());
             appendTime.add(longestRequestResponse.getAppendTime());
             consensusTime.add(longestRequestResponse.getConsensusTime());
             firstFollowerSendTime.add(longestRequestResponse.getFirstFollowerSendTime());
             majorityFollowerSendTime.add(longestRequestResponse.getMajorityFollowerSendTime());
 
+            manager.registerOperation(DXRaftHandler.class, totalTime);
             manager.registerOperation(DXRaftHandler.class, acquireLockTime);
             manager.registerOperation(DXRaftHandler.class, appendTime);
             manager.registerOperation(DXRaftHandler.class, consensusTime);

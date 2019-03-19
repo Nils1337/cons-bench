@@ -32,6 +32,10 @@ public class DXRaftHandler implements ConsensusHandler {
         return m_longestRequestResponse;
     }
 
+    public long getLongestTime() {
+        return m_longestTime;
+    }
+
     public DXRaftHandler(boolean p_debugRequests) {
         m_debugRequests = p_debugRequests;
         if (m_debugRequests) {
