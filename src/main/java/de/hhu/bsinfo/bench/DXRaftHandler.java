@@ -11,6 +11,8 @@ import de.hhu.bsinfo.dxutils.stats.TimePercentilePool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 public class DXRaftHandler implements ConsensusHandler {
     private static final Logger log = LogManager.getLogger(DXRaftHandler.class);
 
@@ -22,6 +24,13 @@ public class DXRaftHandler implements ConsensusHandler {
     private TimePercentilePool m_firstFollowerSendTime;
     private TimePercentilePool m_majorityFollowerSendTime;
 
+    private BooleanResult m_longestRequestResponse;
+    private long m_longestTime = 0;
+    private ReentrantLock m_lock = new ReentrantLock();
+
+    public BooleanResult getLongestRequestResponse() {
+        return m_longestRequestResponse;
+    }
 
     public DXRaftHandler(boolean p_debugRequests) {
         m_debugRequests = p_debugRequests;
@@ -78,7 +87,17 @@ public class DXRaftHandler implements ConsensusHandler {
     public void writeRequest(String p_path) {
         BooleanResult result;
         if (m_debugRequests) {
+            long start = System.nanoTime();
             result = m_raft.write(p_path, new IntData(1), true, true);
+            long time = System.nanoTime() - start;
+
+            m_lock.lock();
+            if (time > m_longestTime) {
+                m_longestRequestResponse = result;
+                m_longestTime = time;
+            }
+            m_lock.unlock();
+
             m_acquireLockTime.record(result.getAcquireLockTime());
             m_appendTime.record(result.getAppendTime());
             m_consensusTime.record(result.getConsensusTime());

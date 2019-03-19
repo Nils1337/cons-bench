@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.bench;
 
 import de.hhu.bsinfo.dxraft.client.result.BooleanResult;
+import de.hhu.bsinfo.dxraft.server.message.RequestResponse;
 import de.hhu.bsinfo.dxutils.stats.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -128,6 +129,27 @@ public final class Benchmark {
             manager.join();
         } catch (InterruptedException e) {
             log.error(e);
+        }
+
+        if (debugRequests && handler instanceof DXRaftHandler) {
+            Time acquireLockTime = new Time(DXRaftHandler.class, "Maximum Acquire Lock Time");
+            Time appendTime = new Time(DXRaftHandler.class, "Maximum Log Append Time");
+            Time consensusTime = new Time(DXRaftHandler.class, "Maximum Consensus Time");
+            Time firstFollowerSendTime = new Time(DXRaftHandler.class, "Maximum Time until sent to first follower");
+            Time majorityFollowerSendTime = new Time(DXRaftHandler.class, "Maximum Time until sent to majority of followers");
+
+            BooleanResult longestRequestResponse = ((DXRaftHandler) handler).getLongestRequestResponse();
+            acquireLockTime.add(longestRequestResponse.getAcquireLockTime());
+            appendTime.add(longestRequestResponse.getAppendTime());
+            consensusTime.add(longestRequestResponse.getConsensusTime());
+            firstFollowerSendTime.add(longestRequestResponse.getFirstFollowerSendTime());
+            majorityFollowerSendTime.add(longestRequestResponse.getMajorityFollowerSendTime());
+
+            manager.registerOperation(DXRaftHandler.class, acquireLockTime);
+            manager.registerOperation(DXRaftHandler.class, appendTime);
+            manager.registerOperation(DXRaftHandler.class, consensusTime);
+            manager.registerOperation(DXRaftHandler.class, firstFollowerSendTime);
+            manager.registerOperation(DXRaftHandler.class, majorityFollowerSendTime);
         }
 
         log.info("Writing results to {}", resultPath);
