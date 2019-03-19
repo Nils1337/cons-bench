@@ -24,8 +24,8 @@ public class DXRaftHandler implements ConsensusHandler {
     private TimePercentilePool m_firstFollowerSendTime;
     private TimePercentilePool m_majorityFollowerSendTime;
 
-    private BooleanResult m_longestRequestResponse;
-    private long m_longestTime = 0;
+    private volatile BooleanResult m_longestRequestResponse;
+    private volatile long m_longestTime = 0;
     private ReentrantLock m_lock = new ReentrantLock();
 
     public BooleanResult getLongestRequestResponse() {
