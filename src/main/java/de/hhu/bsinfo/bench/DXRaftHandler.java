@@ -23,6 +23,7 @@ public class DXRaftHandler implements ConsensusHandler {
     private TimePercentilePool m_consensusTime;
     private TimePercentilePool m_firstFollowerSendTime;
     private TimePercentilePool m_majorityFollowerSendTime;
+    private TimePercentilePool m_clientServerComTime;
 
     private volatile BooleanResult m_longestRequestResponse;
     private volatile long m_longestTime = 0;
@@ -44,6 +45,7 @@ public class DXRaftHandler implements ConsensusHandler {
             m_consensusTime = new TimePercentilePool(DXRaftHandler.class, "Consensus Time");
             m_firstFollowerSendTime = new TimePercentilePool(DXRaftHandler.class, "Time until sent to first follower");
             m_majorityFollowerSendTime = new TimePercentilePool(DXRaftHandler.class, "Time until sent to majority of followers");
+            m_clientServerComTime = new TimePercentilePool(DXRaftHandler.class, "Time for communication between Client and Server");
         }
     }
 
@@ -74,6 +76,7 @@ public class DXRaftHandler implements ConsensusHandler {
             p_manager.registerOperation(DXRaftHandler.class, m_consensusTime);
             p_manager.registerOperation(DXRaftHandler.class, m_firstFollowerSendTime);
             p_manager.registerOperation(DXRaftHandler.class, m_majorityFollowerSendTime);
+            p_manager.registerOperation(DXRaftHandler.class, m_clientServerComTime);
         }
 
         return true;
@@ -107,6 +110,7 @@ public class DXRaftHandler implements ConsensusHandler {
             m_consensusTime.record(result.getConsensusTime());
             m_firstFollowerSendTime.record(result.getFirstFollowerSendTime());
             m_majorityFollowerSendTime.record(result.getMajorityFollowerSendTime());
+            m_clientServerComTime.record(time - (result.getAppendTime() + result.getConsensusTime()));
         } else {
             result = m_raft.write(p_path, new IntData(1), true);
         }
