@@ -4,6 +4,9 @@ import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.KeyValueClient;
+import com.orbitz.consul.option.ConsistencyMode;
+import com.orbitz.consul.option.ImmutableQueryOptions;
+import com.orbitz.consul.option.QueryOptions;
 import de.hhu.bsinfo.dxutils.stats.StatisticsManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +43,8 @@ public class ConsulHandler implements ConsensusHandler {
     public void readRequest(String p_path) {
         while (true) {
             try {
-                m_kvClient.getValue(p_path);
+                QueryOptions options = ImmutableQueryOptions.builder().consistencyMode(ConsistencyMode.STALE).build();
+                m_kvClient.getValue(p_path, options);
                 break;
             } catch (ConsulException e) {
                 LOG.warn("Exception:", e);
