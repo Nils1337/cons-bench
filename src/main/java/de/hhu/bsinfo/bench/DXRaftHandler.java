@@ -85,7 +85,7 @@ public class DXRaftHandler implements ConsensusHandler {
     @Override
     public void readRequest(String p_path) {
         EntryResult result = m_raft.read(p_path, false);
-        if (result.getErrorCode() != 0) {
+        if (result.getErrorCode() > 1) {
             log.error("DXRaft returned error {} when reading data", result.getErrorCode());
         }
     }
