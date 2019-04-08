@@ -27,7 +27,7 @@ public class EtcdHandler implements ConsensusHandler {
 
         m_client = Client.builder().endpoints(servers).build();
         m_kvClient = m_client.getKVClient();
-        return false;
+        return true;
     }
 
     @Override
