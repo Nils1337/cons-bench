@@ -14,9 +14,9 @@ public class ZookeeperHandler implements ConsensusHandler, Watcher {
 
     @Override
     public boolean init(int p_writeDist, StatisticsManager p_manager) {
-        String servers = System.getProperty("zookeeper.servers");
+        String servers = System.getProperty("servers");
         if (servers == null) {
-            log.error("Server list must be provided with -Dzookeeper.servers");
+            log.error("Server list must be provided with -Dservers");
             return false;
         }
 

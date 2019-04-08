@@ -23,9 +23,9 @@ public class ConsulHandler implements ConsensusHandler {
 
     @Override
     public boolean init(int p_writeDist, StatisticsManager p_manager) {
-        String servers = System.getProperty("consul.servers");
+        String servers = System.getProperty("servers");
         if (servers == null) {
-            LOG.error("Server list must be provided with -Dconsul.servers");
+            LOG.error("Server list must be provided with -Dservers");
             return false;
         }
         List<HostAndPort> serverList = Arrays.stream(servers.split(","))

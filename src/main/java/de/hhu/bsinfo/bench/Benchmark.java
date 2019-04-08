@@ -53,6 +53,8 @@ public final class Benchmark {
             handler = new DXRaftHandler(debugRequests);
         } else if ("c".equals(p_args[0]) || "consul".equals(p_args[0])) {
             handler = new ConsulHandler();
+        } else if ("e".equals(p_args[0]) || "etcd".equals(p_args[0])) {
+            handler = new EtcdHandler();
         } else {
             log.error("Unknown benchmark type");
             return;
