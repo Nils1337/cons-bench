@@ -1,5 +1,6 @@
 package de.hhu.bsinfo.bench;
 
+import com.google.common.net.HostAndPort;
 import de.hhu.bsinfo.dxutils.stats.StatisticsManager;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
@@ -10,7 +11,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class EtcdHandler implements ConsensusHandler {
     private static final Logger LOG = LogManager.getLogger(ConsulHandler.class);
@@ -25,7 +29,10 @@ public class EtcdHandler implements ConsensusHandler {
             return false;
         }
 
-        m_client = Client.builder().endpoints(servers).build();
+        String[] serverList = Arrays.stream(servers.split(","))
+                .toArray(String[]::new);
+
+        m_client = Client.builder().endpoints(serverList).build();
         m_kvClient = m_client.getKVClient();
         return true;
     }
