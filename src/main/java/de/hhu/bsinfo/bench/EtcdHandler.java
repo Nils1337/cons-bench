@@ -14,6 +14,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 public class EtcdHandler implements ConsensusHandler {
@@ -39,17 +40,30 @@ public class EtcdHandler implements ConsensusHandler {
 
     @Override
     public void readRequest(String p_path) {
-        ByteSequence key = ByteSequence.from(p_path, Charset.defaultCharset());
-        CompletableFuture<GetResponse> future = m_kvClient.get(key);
-        future.join();
+        while (true) {
+            try {
+                ByteSequence key = ByteSequence.from(p_path, Charset.defaultCharset());
+                CompletableFuture<GetResponse> future = m_kvClient.get(key);
+                future.join();
+                break;
+            } catch (CompletionException e) {
+                LOG.warn("Exception:", e);
+            }
+        }
     }
 
     @Override
     public void writeRequest(String p_path) {
-        ByteSequence key = ByteSequence.from(p_path, Charset.defaultCharset());
-        CompletableFuture<PutResponse> future = m_kvClient.put(key, ByteSequence.from("test",
-                Charset.defaultCharset()));
-        future.join();
+        while (true) {
+            try {
+                ByteSequence key = ByteSequence.from(p_path, Charset.defaultCharset());
+                CompletableFuture<PutResponse> future = m_kvClient.put(key, ByteSequence.from("test",
+                        Charset.defaultCharset()));
+                future.join();
+            } catch (CompletionException e) {
+                LOG.warn("Exception:", e);
+            }
+        }
     }
 
     @Override
