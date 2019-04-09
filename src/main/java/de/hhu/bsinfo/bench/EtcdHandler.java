@@ -60,6 +60,7 @@ public class EtcdHandler implements ConsensusHandler {
                 CompletableFuture<PutResponse> future = m_kvClient.put(key, ByteSequence.from("test",
                         Charset.defaultCharset()));
                 future.join();
+                break;
             } catch (CompletionException e) {
                 LOG.warn("Exception:", e);
             }
