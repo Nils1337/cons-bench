@@ -7,6 +7,7 @@ import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.kv.PutResponse;
+import io.etcd.jetcd.options.GetOption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,7 +44,7 @@ public class EtcdHandler implements ConsensusHandler {
         while (true) {
             try {
                 ByteSequence key = ByteSequence.from(p_path, Charset.defaultCharset());
-                CompletableFuture<GetResponse> future = m_kvClient.get(key);
+                CompletableFuture<GetResponse> future = m_kvClient.get(key, GetOption.newBuilder().withSerializable(true).build());
                 future.join();
                 break;
             } catch (CompletionException e) {
